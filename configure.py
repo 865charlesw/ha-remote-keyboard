@@ -1,12 +1,12 @@
 from evdev import list_devices, InputDevice
 import json
-from .main import CONFIG_PATH
+from main import CONFIG_PATH
 
 DEVICE_DIR = "/dev/input"
 
 
 def main():
-    devices = [InputDevice(path).name for path in enumerate(list_devices(DEVICE_DIR))]
+    devices = [InputDevice(path).name for path in list_devices(DEVICE_DIR)]
     device_lines = "\n".join(f"  {idx}: {name}" for idx, name in enumerate(devices))
     print(f"Input Devices:\n{device_lines}")
     device_index = input("Select an input device: ")
