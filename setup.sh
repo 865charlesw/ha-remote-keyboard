@@ -2,8 +2,9 @@
 
 set -e
 
-project_name="$(basename $(pwd))"
 sudo apt-get install python3-venv python3-dev -y
+cd "$(dirname "$0")"
+project_name="$(basename "$(pwd)")"
 python3 -m venv "venv_$project_name"
 source "venv_$project_name/bin/activate"
 pip install -r requirements.txt
