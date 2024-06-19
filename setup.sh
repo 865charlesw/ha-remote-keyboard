@@ -9,7 +9,7 @@ python3 -m venv "venv_$project_name"
 source "venv_$project_name/bin/activate"
 pip install -r requirements.txt
 python configure.py
-sudo cat > "/etc/systemd/system/$project_name.service" <<- EOF
+cat <<- EOF | sudo tee "/etc/systemd/system/$project_name.service"
     [Unit]
     Description=Home Assistant Remote Keyboard Service
     After=network-online.target
