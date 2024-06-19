@@ -2,7 +2,7 @@
 
 set -e
 
-sudo apt-get install python3-venv python3-dev -y
+sudo apt-get install -y python3-venv python3-dev
 cd "$(dirname "$0")"
 project_name="$(basename "$(pwd)")"
 python3 -m venv "venv_$project_name"
