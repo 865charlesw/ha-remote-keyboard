@@ -17,12 +17,7 @@ def main():
         "webhook_id": webhook_id,
         "repeat_delay_ms": repeat_delay_ms or 500,
     }
-    config = {
-        "input_device_name": "INPUT_DEVICE_NAME",
-        "repeat_delay_ms": 500,
-        "webhook_id": "WEBHOOK_ID",
-    }
-    CONFIG_PATH.write_text(json.dumps(config, indent=4))
+    CONFIG_PATH.write_text(json.dumps(config, indent=4) + "\n")
     print(f"Configuration written to {CONFIG_PATH}")
 
 
