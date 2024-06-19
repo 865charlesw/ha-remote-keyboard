@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
+set -e
+
+sudo echo > /dev/null
 project_name="$(basename $(pwd))"
 sudo apt-get install python3-venv python3-dev -y
 python3 -m venv "venv_$project_name"
 source "venv_$project_name/bin/activate"
 pip install -r requirements.txt
 python configure.py
-cat > "/etc/systemd/system/$project_name.service" <<- EOF
+sudo cat > "/etc/systemd/system/$project_name.service" <<- EOF
     [Unit]
     Description=Home Assistant Remote Keyboard Service
     After=network-online.target
