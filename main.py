@@ -10,6 +10,56 @@ LOG_LEVEL = logging.INFO
 CONFIG_PATH = Path(__file__).parent / "config.json"
 
 
+def main():
+    # Setup Constants
+    config = json.loads(CONFIG_PATH.read_text())
+    global LOGGER, HOSTNAME, REPEAT_DELAY_SEC, WEBHOOK_URL
+    LOGGER = logging.getLogger(__name__)
+    HOSTNAME = socket.gethostname()
+    REPEAT_DELAY_SEC = config["repeat_delay_ms"] / 1000
+    WEBHOOK_URL = f"{WEBHOOK_BASE_URL}/{config['webhook_id']}"
+
+    # Setup Logging
+    logging.basicConfig()
+    LOGGER.setLevel(LOG_LEVEL)
+
+    # Get Input Device
+    device: InputDevice = _get_device(config["input_device_name"])
+
+    # Send Events
+    with device.grab_context():
+        _send_events(device)
+
+
+def _get_device(device_name):
+    available = get_devices()
+    for device in available:
+        if device.name == device_name:
+            LOGGER.info(f"Found {device}")
+            return device
+    device_names = [device.name for device in available]
+    raise Exception(f"Keyboard '{device_name}' not found in {device_names}")
+
+
+def get_devices():
+    return [InputDevice(path) for path in list_devices()]
+
+
+def _send_events(device: InputDevice):
+    handlers: dict[str, KeyHandler] = {}
+    for event in device.read_loop():
+        event: InputEvent
+        if event.type != ecodes.EV_KEY:
+            continue
+        key_event: KeyEvent = categorize(event)
+        keycode = key_event.keycode
+        if isinstance(key_event.keycode, list):
+            keycode = ",".join(keycode)
+        if keycode not in handlers:
+            handlers[keycode] = KeyHandler(keycode)
+        handlers[keycode].handle(key_event)
+
+
 class KeyHandler:
     def __init__(self, keycode: str):
         self.keycode = keycode
@@ -57,49 +107,6 @@ class KeyHandler:
         LOGGER.info(f"Sending {data}")
         response = requests.post(WEBHOOK_URL, json=data)
         response.raise_for_status()
-
-
-def _send_events(device: InputDevice):
-    handlers: dict[str, KeyHandler] = {}
-    for event in device.read_loop():
-        event: InputEvent
-        if event.type != ecodes.EV_KEY:
-            continue
-        key_event: KeyEvent = categorize(event)
-        keycode = key_event.keycode
-        if isinstance(key_event.keycode, list):
-            keycode = ",".join(keycode)
-        if keycode not in handlers:
-            handlers[keycode] = KeyHandler(keycode)
-        handlers[keycode].handle(key_event)
-
-
-def main():
-    # Setup Constants
-    config = json.loads(CONFIG_PATH.read_text())
-    global LOGGER, HOSTNAME, REPEAT_DELAY_SEC, WEBHOOK_URL
-    LOGGER = logging.getLogger(__name__)
-    HOSTNAME = socket.gethostname()
-    REPEAT_DELAY_SEC = config["repeat_delay_ms"] / 1000
-    WEBHOOK_URL = f"{WEBHOOK_BASE_URL}/{config['webhook_id']}"
-
-    # Setup Logging
-    logging.basicConfig()
-    LOGGER.setLevel(LOG_LEVEL)
-
-    # Get Input Device
-    available = [InputDevice(path) for path in list_devices()]
-    matching = list(filter(lambda d: d.name == config["input_device_name"], available))
-    if len(matching) != 1:
-        raise Exception(
-            f"Keyboard {config['input_device_name']} not found in {available}"
-        )
-    device: InputDevice = matching[0]
-    LOGGER.info(f"Found {device}")
-
-    # Send Events
-    with device.grab_context():
-        _send_events(device)
 
 
 if __name__ == "__main__":

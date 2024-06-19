@@ -1,13 +1,13 @@
 from evdev import list_devices, InputDevice
 import json
-from main import CONFIG_PATH
-
-DEVICE_DIR = "/dev/input"
+from main import CONFIG_PATH, get_devices
 
 
 def main():
-    devices = [InputDevice(path).name for path in list_devices(DEVICE_DIR)]
-    device_lines = "\n".join(f"  {idx}: {name}" for idx, name in enumerate(devices))
+    devices = get_devices()
+    device_lines = "\n".join(
+        f"  {idx}: {device.name}" for idx, device in enumerate(devices)
+    )
     print(f"Input Devices:\n{device_lines}")
     device_index = input("Select an input device: ")
     webhook_id = input("Enter the webhook ID: ")
