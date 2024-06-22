@@ -42,7 +42,8 @@ def _get_device(device_name):
 
 
 def get_devices():
-    return [InputDevice(path) for path in list_devices()]
+    devices = [InputDevice(path) for path in list_devices()]
+    return sorted(devices, key=lambda device: device.path)
 
 
 def _send_events(device: InputDevice):
