@@ -15,7 +15,7 @@ def main():
     webhook_id = input("Enter the webhook ID: ")
     repeat_delay_ms = input("Enter the repeat delay in ms (default 500): ")
     config = {
-        "input_device_name": devices[int(device_index)],
+        "input_device_name": devices[int(device_index)].name,
         "webhook_id": webhook_id,
         "repeat_delay_ms": repeat_delay_ms or 500,
     }
