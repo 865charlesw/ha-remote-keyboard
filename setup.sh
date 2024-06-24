@@ -2,7 +2,7 @@
 
 set -e
 
-sudp apt-get update
+sudo apt-get update
 sudo apt-get install -y python3-venv python3-dev
 cd "$(dirname "$0")"
 project_name="$(basename "$(pwd)")"
